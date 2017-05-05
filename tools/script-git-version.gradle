@@ -1,0 +1,37 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'org.ajoberstar:grgit:1.5.0'
+    }
+}
+
+import org.ajoberstar.grgit.Grgit
+
+ext {
+    git = Grgit.open(currentDir: projectDir)
+    gitDescribe = git.describe()
+    gitTagListSize = git.tag.list().size()
+    gitCommitTime = git.head().time
+    gitFullMessage = git.head().fullMessage
+    gitShortMessage = git.head().shortMessage
+    gitCommitId = git.head().id
+    gitCommitShortId = git.head().getAbbreviatedId()
+    gitCommitAuthorName = git.head().author.name
+    gitCommitCommiterEmail = git.head().committer.email
+    gitBranch = git.branch.getCurrent().getName()
+}
+
+task printVersion() {
+    println("Describe: $gitDescribe")
+    println("Tag List Size: $gitTagListSize")
+    println("Commit Time: $gitCommitTime")
+    println("Branch: $gitBranch")
+    println("Full message: $gitFullMessage")
+    println("Short message: $gitShortMessage")
+    println("Commit Id: $gitCommitId")
+    println("Commit Short Id: $gitCommitShortId")
+    println("Author name: $gitCommitAuthorName")
+    println("Commiter email: $gitCommitCommiterEmail")
+}

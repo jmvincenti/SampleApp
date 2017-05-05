@@ -1,0 +1,50 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    ext.kotlinVersion = '1.1.2-2'
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.1'
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+        classpath "io.realm:realm-gradle-plugin:3.0.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+ext {
+    // Sdk and tools
+    minSdkVersion = 19
+    targetSdkVersion = 25
+    compileSdkVersion = 25
+    buildToolsVersion = '25.0.2'
+
+    // App dependencies
+    espressoVersion = '2.2.2'
+    junitVersion = '4.12'
+    supportLibraryVersion = '25.3.1'
+    constraintLayoutVersion = '1.0.1'
+    butterknifeVersion = '8.5.1'
+    rxjavaVersion = '1.2.9'
+    rxandroidVersion = '1.2.1'
+    retrofitVersion = '2.2.0'
+    constraintVersion = '1.0.1'
+    stethoVersion = '1.4.2'
+    stethoRealmVersion = '2.0.0'
+    picassoVersion = '2.5.2'
+    picassoDownloaderVersion = '1.1.0'
+    hawkVersion = '2.0.1'
+}

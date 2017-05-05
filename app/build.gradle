@@ -1,0 +1,123 @@
+apply plugin: 'com.android.application'
+apply plugin: 'realm-android'
+apply from: "$project.rootDir/tools/script-git-version.gradle"
+
+android {
+    compileSdkVersion rootProject.compileSdkVersion
+    buildToolsVersion "$rootProject.buildToolsVersion"
+    defaultConfig {
+        applicationId "com.jmvincenti.sample"
+        minSdkVersion rootProject.minSdkVersion
+        targetSdkVersion rootProject.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            applicationIdSuffix ".debug"
+        }
+    }
+    flavorDimensions "build"
+
+    productFlavors {
+        DEV {
+            dimension "build"
+            resValue "string", "build_label", "-DEV"
+            versionCode gitCommitTime
+            versionName gitDescribe
+        }
+
+        STAGING {
+            dimension "build"
+            resValue "string", "build_label", "-STAGING"
+            versionCode gitCommitTime
+            versionName gitDescribe
+        }
+
+        PROD {
+            dimension "build"
+            resValue "string", "build_label", "-PROD"
+            versionCode gitTagListSize
+            versionName gitDescribe
+        }
+    }
+
+    android.variantFilter { variant ->
+        if (variant.buildType.name == 'release' && (variant.getFlavors().get(0).name == 'DEV' || variant.getFlavors().get(0).name == 'STAGING')) {
+            variant.setIgnore(true);
+        }
+    }
+
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def app_name = variant.getApplicationId()
+            def buildType = variant.productFlavors[0].getResValues().get("build_label").value
+            def versionName = "-" + variant.versionName
+            def versionCode = "-" + variant.versionCode
+            def newApkName = app_name + versionName + versionCode + buildType + ".apk"
+            output.outputFile = new File(output.outputFile.parent, newApkName)
+        }
+    }
+
+}
+repositories {
+    maven {
+        url 'https://github.com/uPhyca/stetho-realm/raw/master/maven-repo'
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    //TESTING
+    androidTestCompile("com.android.support.test.espresso:espresso-core:$espressoVersion", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testCompile "junit:junit:$junitVersion"
+    testCompile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlinVersion"
+
+    //HAWK
+    compile "com.orhanobut:hawk:$hawkVersion"
+
+    //RX Java
+    compile "io.reactivex:rxjava:$rxjavaVersion"
+    compile "io.reactivex:rxandroid:$rxandroidVersion"
+
+    //RETROFIT
+    compile "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    compile "com.squareup.retrofit2:converter-gson:$retrofitVersion"
+    compile "com.squareup.retrofit2:converter-scalars:$retrofitVersion"
+    compile("com.squareup.retrofit2:converter-simplexml:$retrofitVersion") {
+        // https://github.com/square/retrofit/tree/master/retrofit-converters/simplexml
+        // exclude the following transitive dependencies: stax:stax-api, stax:stax, and xpp3:xpp3
+        exclude group: 'xpp3', module: 'xpp3'
+        exclude group: 'stax', module: 'stax-api'
+        exclude group: 'stax', module: 'stax'
+    }
+    compile "com.squareup.retrofit2:adapter-rxjava:$retrofitVersion"
+
+    //PICASSO
+    compile "com.squareup.picasso:picasso:$picassoVersion"
+    compile "com.jakewharton.picasso:picasso2-okhttp3-downloader:$picassoDownloaderVersion"
+
+    //BUTTERKNIFE
+    annotationProcessor "com.jakewharton:butterknife-compiler:$butterknifeVersion"
+    compile "com.jakewharton:butterknife:$butterknifeVersion"
+
+    //ANDROID COMPAT
+    compile "com.android.support:appcompat-v7:$supportLibraryVersion"
+    compile "com.android.support.constraint:constraint-layout:$constraintVersion"
+    compile "com.android.support:cardview-v7:$supportLibraryVersion"
+    compile "com.android.support:recyclerview-v7:$supportLibraryVersion"
+
+    //STETHO
+    debugCompile "com.facebook.stetho:stetho:$stethoVersion"
+    debugCompile "com.facebook.stetho:stetho-okhttp3:$stethoVersion"
+    debugCompile "com.facebook.stetho:stetho-js-rhino:$stethoVersion"
+    debugCompile "com.uphyca:stetho_realm:$stethoRealmVersion"
+}
